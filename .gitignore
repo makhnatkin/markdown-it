@@ -5,3 +5,6 @@ demo/
 apidoc/
 dist/
 *.log
+.idea/
+package-lock.json
+support/.DS_Store
