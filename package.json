@@ -37,7 +37,8 @@
     "benchmark-deps": "npm install --prefix benchmark/extra/ -g marked@0.3.6 commonmark@0.26.0 markdown-it/markdown-it.git#2.2.1",
     "specsplit": "support/specsplit.mjs good -o test/fixtures/commonmark/good.txt && support/specsplit.mjs bad -o test/fixtures/commonmark/bad.txt && support/specsplit.mjs",
     "todo": "grep 'TODO' -n -r ./lib 2>/dev/null",
-    "prepublishOnly": "npm test && npm run build && npm run gh-demo && npm run gh-doc"
+    "prepublishOnly": "npm test && npm run build && npm run gh-demo && npm run gh-doc",
+    "dev": "node server/server.js"
   },
   "files": [
     "index.mjs",
@@ -46,9 +47,12 @@
   ],
   "dependencies": {
     "argparse": "^2.0.1",
+    "body-parser": "^1.20.2",
     "entities": "^4.4.0",
     "linkify-it": "^5.0.0",
+    "markdown-it": "^14.1.0",
     "mdurl": "^2.0.0",
+    "node-fetch": "^3.3.2",
     "punycode.js": "^2.3.1",
     "uc.micro": "^2.1.0"
   },
@@ -63,7 +67,7 @@
     "chai": "^4.2.0",
     "eslint": "^8.4.1",
     "eslint-config-standard": "^17.1.0",
-    "express": "^4.14.0",
+    "express": "^4.19.2",
     "gh-pages": "^6.1.0",
     "highlight.js": "^11.9.0",
     "jest-worker": "^29.7.0",
