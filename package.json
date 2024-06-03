@@ -28,6 +28,7 @@
   },
   "scripts": {
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "test": "npm run lint && CJS_ONLY=1 npm run build && c8 --exclude dist --exclude test -r text -r html -r lcov mocha && node support/specsplit.mjs",
     "doc": "node support/build_doc.mjs",
     "gh-doc": "npm run doc && gh-pages -d apidoc -f",
@@ -38,7 +39,8 @@
     "specsplit": "support/specsplit.mjs good -o test/fixtures/commonmark/good.txt && support/specsplit.mjs bad -o test/fixtures/commonmark/bad.txt && support/specsplit.mjs",
     "todo": "grep 'TODO' -n -r ./lib 2>/dev/null",
     "prepublishOnly": "npm test && npm run build && npm run gh-demo && npm run gh-doc",
-    "dev": "node server/server.js"
+    "server": "node server/server.js",
+    "dev": "npm run lint:fix && node support/build_demo.mjs && npm run server"
   },
   "files": [
     "index.mjs",
@@ -51,6 +53,7 @@
     "entities": "^4.4.0",
     "linkify-it": "^5.0.0",
     "markdown-it": "^14.1.0",
+    "markdown-it-directive": "^1.0.1",
     "mdurl": "^2.0.0",
     "node-fetch": "^3.3.2",
     "punycode.js": "^2.3.1",
@@ -59,6 +62,7 @@
   "devDependencies": {
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-terser": "^0.4.4",
     "ansi": "^0.3.0",
