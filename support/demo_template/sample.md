@@ -31,7 +31,16 @@ text before :directive-name[content](/link "destination" /another "one"){.class 
 content
 :::
 
+---
 
+::: html
+<div><span>div and span<span></div>
+:::
+
+::: html
+<div style="color: red">danger html with injection</div>
+<script>alert('Your cookie: ' + document.cookie);</script>
+:::
 
 ### [Custom containers](https://github.com/markdown-it/markdown-it-container)
 

@@ -2,11 +2,13 @@ import nodeResolve from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
 import terser from '@rollup/plugin-terser'
 import json from '@rollup/plugin-json'
+import polyfillNode from 'rollup-plugin-polyfill-node'
 
 const plugins = [
   nodeResolve({ preferBuiltins: true }),
-  commonjs(),
+  commonjs({ transformMixedEsModules: true }),
   json(),
+  polyfillNode(),
   // Here terser is used only to force ascii output
   terser({
     mangle: false,

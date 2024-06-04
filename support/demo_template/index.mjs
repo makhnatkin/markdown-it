@@ -7,6 +7,7 @@ import hljs from 'highlight.js'
 // plugins
 import md_container from 'markdown-it-container'
 import md_directive from 'markdown-it-directive'
+import sanitizeHtml from 'sanitize-html'
 
 let mdHtml, mdSrc, permalink, scrollMap
 
@@ -78,21 +79,44 @@ function setResultView (val) {
   defaults._view = val
 }
 
+const htmlDirective = (
+  state, content, contentTitle, inlineContent, dests, attrs,
+  contentStartLine, contentEndLine,
+  contentTitleStart, contentTitleEnd,
+  inlineContentStart, inlineContentEnd,
+  directiveStartLine, directiveEndLine
+) => {
+  const token = state.push('html_block', '', 0)
+  token.map = [directiveStartLine, directiveEndLine]
+
+  console.log('state', state)
+  console.log('content', content)
+  console.log('contentTitle', contentTitle)
+  console.log('inlineContent', inlineContent)
+  console.log('dests', dests)
+  console.log('attrs', attrs)
+  console.log('contentStartLine', contentStartLine)
+  console.log('contentEndLine', contentEndLine)
+  console.log('contentTitleStart', contentTitleStart)
+  console.log('contentTitleEnd', contentTitleEnd)
+  console.log('inlineContentStart', inlineContentStart)
+  console.log('inlineContentEnd', inlineContentEnd)
+  console.log('directiveStartLine', directiveStartLine)
+  console.log('directiveEndLine', directiveEndLine)
+
+  const parser = new DOMParser()
+  const parsedDom = parser.parseFromString(content, 'text/html')
+
+  token.content = sanitizeHtml(`<div class="html-directive">${parsedDom.body.innerHTML}</div>`)
+}
+
 function mdInit () {
   if (defaults._strict) {
     mdHtml = window.markdownit('commonmark')
     mdSrc = window.markdownit('commonmark')
   } else {
     mdHtml = window.markdownit(defaults)
-      // .use(md_abbr)
       .use(md_container, 'warning')
-      // .use(md_deflist)
-      // .use(md_emoji)
-      // .use(md_footnote)
-      // .use(md_ins)
-      // .use(md_mark)
-      // .use(md_sub)
-      // .use(md_sup)
       .use(md_directive)
       .use((md) => {
         md.inlineDirectives['directive-name'] = (state, content, dests, attrs, contentStart, contentEnd, directiveStart, directiveEnd) => {
@@ -112,6 +136,7 @@ function mdInit () {
             directive: 'directive-name (block)', content, contentTitle, inlineContent, dests, attrs
           }) + '\n'
         }
+        md.blockDirectives.html = htmlDirective
       })
 
     mdSrc = window.markdownit(defaults)
@@ -135,6 +160,7 @@ function mdInit () {
             directive: 'directive-name (block)', content, contentTitle, inlineContent, dests, attrs
           }) + '\n'
         }
+        md.blockDirectives.html = htmlDirective
       })
   }
 

@@ -57,6 +57,7 @@
     "mdurl": "^2.0.0",
     "node-fetch": "^3.3.2",
     "punycode.js": "^2.3.1",
+    "sanitize-html": "^2.13.0",
     "uc.micro": "^2.1.0"
   },
   "devDependencies": {
@@ -90,6 +91,7 @@
     "ndoc": "^6.0.0",
     "needle": "^3.0.0",
     "rollup": "^4.5.0",
+    "rollup-plugin-polyfill-node": "^0.13.0",
     "shelljs": "^0.8.4",
     "supertest": "^6.0.1"
   },
