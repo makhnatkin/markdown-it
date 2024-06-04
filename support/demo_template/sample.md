@@ -33,11 +33,11 @@ content
 
 ---
 
-::: html
+::: directive-html
 <div><span>div and span<span></div>
 :::
 
-::: html
+::: directive-html
 <div style="color: red">danger html with injection</div>
 <script>alert('Your cookie: ' + document.cookie);</script>
 :::
@@ -46,4 +46,13 @@ content
 
 ::: warning
 *here be dragons*
+:::
+
+::: html
+<div><span>div and span<span></div>
+:::
+
+::: html
+<div style="color: red">danger html with injection</div>
+<script>alert('Your cookie: ' + document.cookie);</script>
 :::

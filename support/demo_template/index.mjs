@@ -107,7 +107,7 @@ const htmlDirective = (
   const parser = new DOMParser()
   const parsedDom = parser.parseFromString(content, 'text/html')
 
-  token.content = sanitizeHtml(`<div class="html-directive">${parsedDom.body.innerHTML}</div>`)
+  token.content = `<iframe class="html-directive" srcdoc="${sanitizeHtml(parsedDom.body.innerHTML)}"></iframe>`;
 }
 
 function mdInit () {
@@ -117,6 +117,13 @@ function mdInit () {
   } else {
     mdHtml = window.markdownit(defaults)
       .use(md_container, 'warning')
+      .use(md_container, 'html', {
+        render: function (tokens, idx) {
+          const token = tokens[idx]
+          const info = token.info
+          return `<${info.tag}>${token.content}</${info.tag}>`
+        }
+      })
       .use(md_directive)
       .use((md) => {
         md.inlineDirectives['directive-name'] = (state, content, dests, attrs, contentStart, contentEnd, directiveStart, directiveEnd) => {
@@ -136,7 +143,7 @@ function mdInit () {
             directive: 'directive-name (block)', content, contentTitle, inlineContent, dests, attrs
           }) + '\n'
         }
-        md.blockDirectives.html = htmlDirective
+        md.blockDirectives['directive-html'] = htmlDirective
       })
 
     mdSrc = window.markdownit(defaults)
@@ -160,7 +167,7 @@ function mdInit () {
             directive: 'directive-name (block)', content, contentTitle, inlineContent, dests, attrs
           }) + '\n'
         }
-        md.blockDirectives.html = htmlDirective
+        md.blockDirectives['directive-html'] = htmlDirective
       })
   }
 
