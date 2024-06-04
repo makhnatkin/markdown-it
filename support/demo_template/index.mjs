@@ -5,15 +5,9 @@ import * as mdurl from 'mdurl'
 import hljs from 'highlight.js'
 
 // plugins
-import md_abbr from 'markdown-it-abbr'
 import md_container from 'markdown-it-container'
-import md_deflist from 'markdown-it-deflist'
-import { full as md_emoji } from 'markdown-it-emoji'
-import md_footnote from 'markdown-it-footnote'
-import md_ins from 'markdown-it-ins'
-import md_mark from 'markdown-it-mark'
-import md_sub from 'markdown-it-sub'
-import md_sup from 'markdown-it-sup'
+import md_directive from 'markdown-it-directive'
+import sanitizeHtml from 'sanitize-html'
 
 let mdHtml, mdSrc, permalink, scrollMap
 
@@ -31,13 +25,13 @@ const defaults = {
   langPrefix: 'language-',
 
   // autoconvert URL-like texts to links
-  linkify: true,
+  linkify: false,
 
   // Enable smartypants and other sweet transforms
-  typographer: true,
+  typographer: false,
 
   // options below are for demo only
-  _highlight: true,
+  _highlight: false,
   _strict: false,
   _view: 'html' // html / src / debug
 }
@@ -85,31 +79,96 @@ function setResultView (val) {
   defaults._view = val
 }
 
+const htmlDirective = (
+  state, content, contentTitle, inlineContent, dests, attrs,
+  contentStartLine, contentEndLine,
+  contentTitleStart, contentTitleEnd,
+  inlineContentStart, inlineContentEnd,
+  directiveStartLine, directiveEndLine
+) => {
+  const token = state.push('html_block', '', 0)
+  token.map = [directiveStartLine, directiveEndLine]
+
+  console.log('state', state)
+  console.log('content', content)
+  console.log('contentTitle', contentTitle)
+  console.log('inlineContent', inlineContent)
+  console.log('dests', dests)
+  console.log('attrs', attrs)
+  console.log('contentStartLine', contentStartLine)
+  console.log('contentEndLine', contentEndLine)
+  console.log('contentTitleStart', contentTitleStart)
+  console.log('contentTitleEnd', contentTitleEnd)
+  console.log('inlineContentStart', inlineContentStart)
+  console.log('inlineContentEnd', inlineContentEnd)
+  console.log('directiveStartLine', directiveStartLine)
+  console.log('directiveEndLine', directiveEndLine)
+
+  const parser = new DOMParser()
+  const parsedDom = parser.parseFromString(content, 'text/html')
+
+  token.content = `<iframe class="html-directive" srcdoc="${sanitizeHtml(parsedDom.body.innerHTML)}"></iframe>`;
+}
+
 function mdInit () {
   if (defaults._strict) {
     mdHtml = window.markdownit('commonmark')
     mdSrc = window.markdownit('commonmark')
   } else {
     mdHtml = window.markdownit(defaults)
-      .use(md_abbr)
       .use(md_container, 'warning')
-      .use(md_deflist)
-      .use(md_emoji)
-      .use(md_footnote)
-      .use(md_ins)
-      .use(md_mark)
-      .use(md_sub)
-      .use(md_sup)
+      .use(md_container, 'html', {
+        render: function (tokens, idx) {
+          const token = tokens[idx]
+          const info = token.info
+          return `<${info.tag}>${token.content}</${info.tag}>`
+        }
+      })
+      .use(md_directive)
+      .use((md) => {
+        md.inlineDirectives['directive-name'] = (state, content, dests, attrs, contentStart, contentEnd, directiveStart, directiveEnd) => {
+          const token = state.push('html_inline', '', 0)
+          token.content = JSON.stringify({ directive: 'directive-name', content, dests, attrs }) + '\n'
+        }
+        md.blockDirectives['directive-name'] = (
+          state, content, contentTitle, inlineContent, dests, attrs,
+          contentStartLine, contentEndLine,
+          contentTitleStart, contentTitleEnd,
+          inlineContentStart, inlineContentEnd,
+          directiveStartLine, directiveEndLine
+        ) => {
+          const token = state.push('html_block', '', 0)
+          token.map = [directiveStartLine, directiveEndLine]
+          token.content = JSON.stringify({
+            directive: 'directive-name (block)', content, contentTitle, inlineContent, dests, attrs
+          }) + '\n'
+        }
+        md.blockDirectives['directive-html'] = htmlDirective
+      })
+
     mdSrc = window.markdownit(defaults)
-      .use(md_abbr)
       .use(md_container, 'warning')
-      .use(md_deflist)
-      .use(md_emoji)
-      .use(md_footnote)
-      .use(md_ins)
-      .use(md_mark)
-      .use(md_sub)
-      .use(md_sup)
+      .use(md_directive)
+      .use((md) => {
+        md.inlineDirectives['directive-name'] = (state, content, dests, attrs, contentStart, contentEnd, directiveStart, directiveEnd) => {
+          const token = state.push('html_inline', '', 0)
+          token.content = JSON.stringify({ directive: 'directive-name', content, dests, attrs }) + '\n'
+        }
+        md.blockDirectives['directive-name'] = (
+          state, content, contentTitle, inlineContent, dests, attrs,
+          contentStartLine, contentEndLine,
+          contentTitleStart, contentTitleEnd,
+          inlineContentStart, inlineContentEnd,
+          directiveStartLine, directiveEndLine
+        ) => {
+          const token = state.push('html_block', '', 0)
+          token.map = [directiveStartLine, directiveEndLine]
+          token.content = JSON.stringify({
+            directive: 'directive-name (block)', content, contentTitle, inlineContent, dests, attrs
+          }) + '\n'
+        }
+        md.blockDirectives['directive-html'] = htmlDirective
+      })
   }
 
   // Beautify output of parser for html content
